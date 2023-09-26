@@ -1,9 +1,19 @@
-import { Controller, Delete, Get, Post, Put } from "@nestjs/common";
+import { Controller, Delete, Get, Injectable, Post, Put } from "@nestjs/common";
+import { InjectRepository } from '@nestjs/typeorm';
+import { FormularioModel } from "src/models/formulario.model";
+import { Repository } from 'typeorm';
 
+@Injectable()
 @Controller('/formulario')
 export class FormularioController {
+      constructor(
+        @InjectRepository(FormularioModel)
+        private FormularioRepository: Repository<FormularioModel>,
+      ) {}
+
     @Get()
     public gelall(): any {
+        this.FormularioRepository.count()
         return { data: 'GetAll !!!'};
     }
 
