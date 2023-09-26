@@ -1,0 +1,21 @@
+@keyframes gradient {
+    0%, 100% {
+      background-position: 200% 0;
+    }
+    50% {
+      background-position: -200% 0;
+    }
+  }
+
+
+  select#sector option {
+    background-color: #2f2e2e;
+    color: white;
+  }
+  
+  /* Estilo de hover das opções do select */
+  select#sector option:hover {
+    background-color: blue;
+    color: white;
+  }
+
