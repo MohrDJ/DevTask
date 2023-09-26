@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BsFolder } from 'react-icons/bs';
 import Image from 'next/image';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const RequestForm: React.FC = () => {
@@ -22,6 +24,8 @@ const RequestForm: React.FC = () => {
     const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [fileUrl, setFileUrl] = useState<string | null>(null);
+    const [options, setOptions] = useState([]);
+    const [labelActive, setLabelActive] = useState(false);
 
 
 
@@ -51,7 +55,6 @@ const RequestForm: React.FC = () => {
                 const fileUrl = URL.createObjectURL(file);
                 setFileUrl(fileUrl);
             } else {
-
                 setFileUrl(null);
             }
         }
@@ -82,12 +85,32 @@ const RequestForm: React.FC = () => {
         }
     };
 
-    const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    useEffect(() => {
+        axios.get('/api/options')
+            .then(response => {
+                setOptions(response.data);
+            })
+            .catch(error => {
+                console.error('Erro ao buscar opções:', error);
+            });
+    }, []);
+
+    const handleChangeSelect = (e: any) => {
         const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
+        setFormData({
+            ...formData,
             [name]: value,
-        }));
+        });
+    };
+
+    const handleSelectFocus = () => {
+        setLabelActive(true);
+    };
+
+    const handleSelectBlur = () => {
+        if (!formData.sector) {
+            setLabelActive(false);
+        }
     };
 
     const handleInputChange = (fieldName: string, value: string) => {
@@ -96,14 +119,6 @@ const RequestForm: React.FC = () => {
             [fieldName]: value,
         }));
     };
-
-    const handleInputFocus = (fieldName: string) => {
-        handleInputChange(fieldName, '');
-    };
-
-    const fieldName: keyof typeof formData = 'name';
-    if (!formData[fieldName]) {
-    }
 
     useEffect(() => {
         const handleResize = () => {
@@ -156,11 +171,19 @@ const RequestForm: React.FC = () => {
                     title: ''
                 });
                 setError(null);
+                toast.dismiss();
+                toast.success('Solicitação enviada com sucesso', {
+                    autoClose: 5000,
+                });
             } else {
                 setError('Ocorreu um erro durante o envio.');
+                toast.dismiss();
+                toast.error('Erro durante o envio. Verifique os campos');
             }
         } catch (error) {
             setError('Ocorreu um erro no servidor.');
+            toast.dismiss();
+            toast.error('Erro no servidor. Verifique os campos');
         }
     };
     const isWideScreen = windowWidth > 2000;
@@ -183,8 +206,8 @@ const RequestForm: React.FC = () => {
                         }`}
                     autoComplete="off"
                 >
-                    <div className="flex justify-center items-center mb-[-1]">
-                        <Image src='/DevTask.svg' alt="Logo" width={200} height={200} />
+                    <div className="flex justify-center items-center " style={{ marginBottom: '-1rem' }}>
+                        <Image src='/DevTask.svg' alt="Logo" width={280} height={280} />
 
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 mb-3">
@@ -211,7 +234,6 @@ const RequestForm: React.FC = () => {
                                     if (!formData.name || formData.name.length === 0) {
                                         handleInputChange('name', '');
                                     }
-
                                 }}
                                 required
                                 className={`bg-[#2f2e2e] border border-gray-300 px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
@@ -250,7 +272,7 @@ const RequestForm: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 mb-3">
                         <div className="mb-0.5 relative">
                             <label
                                 htmlFor="phone"
@@ -277,47 +299,12 @@ const RequestForm: React.FC = () => {
                                 style={{ padding: '1rem 0.4rem 0.2rem 0.4rem ' }}
                             />
                         </div>
-                        <div className="mb-0.5 relative">
-                            <label
-                                htmlFor="unit"
-                                className={`block font-bold text-gray-100 transition-transform ${formData.unit || formData.unit.length > 0 ? '-translate-y-5 text-xs text-gray-400' : ''
-                                    } absolute left-4 top-2/4 transform -translate-y-2/4 ${formData.unit || formData.unit.length > 0 ? 'active' : ''
-                                    }`}
-                            >
-                                Unidade
-                            </label>
-                            <select
-                                id="unit"
-                                name="unit"
-                                value={formData.unit}
-                                onChange={(e) => handleChangeSelect(e)}
-                                onFocus={() => handleInputChange('unit', '')}
-                                onBlur={() => {
-                                    if (!formData.unit || formData.unit.length === 0) {
-                                        handleInputChange('unit', '');
-                                    }
-                                }}
-                                className={`bg-[#2f2e2e] border border-gray-300 px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
-                                style={{ padding: '1.2rem 0.4rem 0.2rem 0.4rem ' }}
-                            >
-                                <option value="" disabled hidden></option>
-                                <option value="cedehp">CEDEHP</option>
-                                <option value="centroAdm">Centro Administrativo</option>
-                                <option value="fabrica2">Fabrica 2</option>
-                                <option value="fabrica3">Fabrica 3</option>
-                                <option value="fabrica4">Fabrica 4</option>
-                                <option value="franquias">franquias</option>
-                                <option value="pormademMovel">Pormade Móvel</option>
-                                <option value="showrooms">Showrooms</option>
-                                <option value="terceiros">Terceiros</option>
 
-                            </select>
-                        </div>
                         <div className="mb-0.5 relative">
                             <label
                                 htmlFor="sector"
-                                className={`block font-bold text-gray-100 transition-transform ${formData.sector || formData.sector.length > 0 ? '-translate-y-5 text-xs  text-gray-400' : ''
-                                    } absolute left-4 top-2/4 transform -translate-y-2/4 ${formData.sector || formData.sector.length > 0 ? 'active' : ''
+                                className={`block font-bold text-gray-100 transition-transform ${labelActive ? '-translate-y-5 text-xs  text-gray-400' : ''
+                                    } absolute left-4 top-2/4 transform -translate-y-2/4 ${labelActive ? 'active' : ''
                                     }`}
                             >
                                 Setor
@@ -327,35 +314,23 @@ const RequestForm: React.FC = () => {
                                 name="sector"
                                 value={formData.sector}
                                 onChange={(e) => handleChangeSelect(e)}
-                                onFocus={() => handleInputChange('sector', '')}
-                                onBlur={() => {
-                                    if (!formData.sector || formData.sector.length === 0) {
-                                        handleInputChange('sector', '');
-                                    }
-                                }}
-                                className={` bg-[#2f2e2e] border border-gray-300 px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
+                                onFocus={handleSelectFocus}
+                                onBlur={handleSelectBlur}
+                                className={`bg-[#2f2e2e] border border-gray-300 px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
                                 style={{ padding: '1.2rem 0.4rem 0.2rem 0.4rem ' }}
                             >
-                                <option value="" disabled hidden></option>
-                                <option value="acabamento">Acabamento</option>
-                                <option value="advaExterno">ADVA Externo</option>
-                                <option value="advaInterno">ADVA Interno </option>
-                                <option value="advc">ADVC</option>
-                                <option value="adviExterno">ADVI Externo</option>
-                                <option value="adviInterno">ADVI Interno</option>
-                                <option value="afiliacao">Afiliação</option>
-                                <option value="ambulatorioF1">Ambulatório F1</option>
-                                <option value="ambulatorioF2">Ambulatório F2</option>
-                                <option value="amostras">Amostras</option>
-                                <option value="analistas">Analistas</option>
-                                <option value="assistenciaTEng">Assistencia Tecnica - engenharia</option>
-                                <option value="assistenciaTLoja">Assistencia Tecnica - Loja</option>
+                                <option value=""></option>
+                                <option value="teste">teste</option>
+                                {options.map((option, index) => (
+                                    <option key={index} value={option}>{option}</option>
+                                ))}
                             </select>
                         </div>
+
                     </div>
-                    <div className="mb-4 relative">
+                    <div className="mb-3 relative">
                         <label
-                            htmlFor="unit"
+                            htmlFor="type"
                             className={`block font-bold text-gray-100 transition-transform ${formData.unit || formData.unit.length > 0 ? '-translate-y-5 text-xs text-gray-400' : ''
                                 } absolute left-4 top-2/4 transform -translate-y-2/4 ${formData.unit || formData.unit.length > 0 ? 'active' : ''
                                 }`}
@@ -376,14 +351,13 @@ const RequestForm: React.FC = () => {
                             className={`bg-[#2f2e2e] border border-gray-300 px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
                             style={{ padding: '1.2rem 0.4rem 0.2rem 0.4rem ' }}
                         >
-                            <option value="" disabled hidden></option>
-
+                            <option value=""></option>
 
                         </select>
                     </div>
                     <div className="mb-4 relative">
                         <label
-                            htmlFor="name"
+                            htmlFor="title"
                             className={`block font-bold text-white-900 transition-transform ${formData.title || formData.title.length > 0 ? '-translate-y-5 text-xs text-gray-400' : ''
                                 } absolute left-4 top-2/4 transform -translate-y-2/4 ${formData.title || formData.title.length > 0 ? 'active' : ''
                                 }`}
@@ -454,20 +428,20 @@ const RequestForm: React.FC = () => {
                             <div className={`text-gray-400 mt-2 mb-1 font-serif ${fileSelected ? 'hidden' : ''}`}>
                                 É permitido enviar apenas um arquivo. Caso precise enviar mais de um arquivo, por favor, comprima-os em um único arquivo antes de enviar.
                             </div>
-                            {/* {selectedFileName && (
-    <div className={`mt-2 mb-1 font-serif text-gray-400 ${fileSelected ? '' : 'hidden'}`}>
-        <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-            {selectedFileName}
-        </a>
-    </div>
-)} */}
-                            {selectedFileName && fileUrl && (
+                            {selectedFileName && (
                                 <div className={`mt-2 mb-1 font-serif text-gray-400 ${fileSelected ? '' : 'hidden'}`}>
                                     <a href={fileUrl} target="_blank" rel="noopener noreferrer">
                                         {selectedFileName}
                                     </a>
                                 </div>
                             )}
+                            {/* {selectedFileName && fileUrl && (
+                                <div className={`mt-2 mb-1 font-serif text-gray-400 ${fileSelected ? '' : 'hidden'}`}>
+                                    <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+                                        {selectedFileName}
+                                    </a>
+                                </div>
+                            )} */}
 
                             <input
                                 type="file"
@@ -479,18 +453,25 @@ const RequestForm: React.FC = () => {
                             />
                             <div className="flex items-center">
                                 <button
-                                    className={`mt-2 bg-blue-600 text-black font-semibold px-2 py-1.0 rounded-md hover:bg-blue-500 focus:outline-none focus:ring focus:border-blue-300`}
-                                    onClick={() => {
+                                    className={`mt-2 border border-gray-300 text-white px-2 py-1.0 rounded-md hover:bg-gray-200 focus:outline-none focus:ring focus:border-blue-300`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
                                         const fileInput = document.getElementById('file');
                                         if (fileInput) {
                                             fileInput.click();
                                         }
                                     }}
-                                    style={{ fontSize: '0.9rem', textShadow: '1px 1px 1px #9fadb8'  }}
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        borderColor: 'gray',
+                                        fontSize: '0.9rem',
+                                        textShadow: '1px 1px 1px #000000',
+                                    }}
                                 >
                                     Anexar Arquivo
                                 </button>
-                                <span style={{ fontSize: '0.79rem', marginLeft: '8px', marginTop:'0.49rem' }}>
+
+                                <span style={{ fontSize: '0.79rem', marginLeft: '8px', marginTop: '0.49rem' }}>
                                     Tamanho Máximo 25MB
                                 </span>
                             </div>
@@ -499,15 +480,18 @@ const RequestForm: React.FC = () => {
                     </div>
                     <div className="flex gap-2 self-end">
                         <button type="submit" className="bg-white text-black font-bold px-4 py-2 rounded-md hover:bg-gray-400 mt-2"
-                         style={{ fontSize: '0.9rem', textShadow: '1px 1px 1px #00185a92' }}>
+                            style={{ fontSize: '0.9rem', textShadow: '1px 1px 1px #00185a92' }}>
                             Cancelar
                         </button>
                         <button type="submit" className="bg-blue-600 text-white font-bold px-4 py-2 rounded-md hover:bg-blue-500 mt-2"
-                        style={{ textShadow: '1px 1px 1px rgba(0,0,0,1.3)' }}>
+                            style={{ textShadow: '1px 1px 1px rgba(0,0,0,1.3)' }}>
                             Enviar Solicitação
                         </button>
                     </div>
                 </form>
+                <ToastContainer />
+                <footer className=" h-6rem min-h-[48px] w-full  botton-0 relative mt-10" style={{ backgroundColor: "#000000" }}>
+                </footer>
             </main>
         </div>
     );
