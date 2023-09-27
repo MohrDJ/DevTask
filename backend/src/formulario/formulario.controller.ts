@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Injectable, Post, Put } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
-import { FormularioModel } from "src/models/formulario.model";
+import { FormularioModel } from "src/formulario/formulario.model";
 import { Repository } from 'typeorm';
 
 @Injectable()

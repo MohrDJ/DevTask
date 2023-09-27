@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm/dist';
-import { FormularioModel } from './models/formulario.model';
+import { FormularioModel } from './formulario/formulario.model';
+import { FormularioController } from './formulario/formulario.controller';
 
 
 @Module({
@@ -15,6 +16,6 @@ import { FormularioModel } from './models/formulario.model';
     entities: [FormularioModel], //adicionar tabelas aqui
     //synchronize: false,
   }),
-],
+], controllers:[FormularioController]
 })
 export class AppModule {}
