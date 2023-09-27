@@ -14,7 +14,7 @@ import { FormularioService } from './formulario/formulario.services';
       password: 't363fir8',
       database: 'APEX_TEST',
       entities: [FormularioModel],
-      synchronize: false, // Ative apenas em ambiente de desenvolvimento
+      synchronize: true, // Ative apenas em ambiente de desenvolvimento
     }),
     TypeOrmModule.forFeature([FormularioModel]),
   ],

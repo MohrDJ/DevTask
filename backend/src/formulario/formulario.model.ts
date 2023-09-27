@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity('DTASK_TICKET') 
 export class FormularioModel {
   @PrimaryGeneratedColumn()
   id_tipo_ticket: number;
@@ -11,22 +11,22 @@ export class FormularioModel {
   @Column({ length: 255 })
   emailsolicitante: string;
 
-  @Column('int')
-  telefone: string;
+  @Column({ type: 'varchar', length: 15 })
+  telefone: string; 
 
   @Column('int')
-  setor: number;
+  setor: number; 
 
   @Column({ length: 1500 })
   descricao: string;
 
-  @Column()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   datacriacao: Date;
 
   @Column()
   etapa: string;
 
-  @Column()
+  @Column('int')
   abertura: number;
 
   @Column()
