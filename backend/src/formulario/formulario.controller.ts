@@ -1,29 +1,24 @@
-import { Controller, Delete, Get, Injectable, Post, Put } from "@nestjs/common";
-import { InjectRepository } from '@nestjs/typeorm';
-import { FormularioModel } from "src/formulario/formulario.model";
-import { Repository } from 'typeorm';
+import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { FormularioModel } from './formulario.model';
+import { FormularioService } from '../formulario/formulario.services';
 
-@Injectable()
-@Controller('/formulario')
+@Controller('formulario')
 export class FormularioController {
-      constructor(
-        @InjectRepository(FormularioModel)
-        private FormularioRepository: Repository<FormularioModel>,
-      ) {}
+  constructor(private readonly formularioService: FormularioService) {}
 
-    @Get()
-    public gelall(): any {
-        this.FormularioRepository.count()
-        return { data: 'GetAll !!!'};
-    }
+  @Post()
+  create(@Body() formularioData: FormularioModel): Promise<FormularioModel> {
+    return this.formularioService.create(formularioData);
+  }
 
-    @Get(':id')
-    public getone(): any {
-        return { data: 'GetOne !!!'};
-    }
+  @Get()
+  findAll(): Promise<FormularioModel[]> {
+    return this.formularioService.findAll();
+  }
 
-    @Post()
-    public create(): any {
-        return { data: 'Create !!!'};
-    }
+//   @Get(':id')
+//   findOne(@Param('id') id: number): Promise<FormularioModel> {
+//     return this.formularioService.findOne(id);
+//   }
+
 }
