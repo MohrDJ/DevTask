@@ -5,7 +5,14 @@ import { BsFolder } from 'react-icons/bs';
 import Image from 'next/image';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Select, { ActionMeta, ClearIndicatorProps, GroupBase, components } from 'react-select';
+import styled from 'styled-components';
 
+interface CustomOption {
+    value: string;
+    label: string;
+    description: string;
+}
 
 const RequestForm: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -26,6 +33,8 @@ const RequestForm: React.FC = () => {
     const [fileUrl, setFileUrl] = useState<string | null>(null);
     const [options, setOptions] = useState([]);
     const [labelActive, setLabelActive] = useState(false);
+    const [selectedOption, setSelectedOption] = useState<CustomOption | null>(null);
+
 
 
 
@@ -42,23 +51,35 @@ const RequestForm: React.FC = () => {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
-        if (file && file.size > 25 * 1024 * 1024) {
-            setError('O arquivo selecionado é muito grande. O tamanho máximo permitido é de 25MB.');
+    
+        if (file) {
+            if (file.size > 25 * 1024 * 1024) {
+                toast.error('O arquivo selecionado é muito grande. O tamanho máximo permitido é de 25MB.');
+            } else if (!/^image\/(jpeg|png)$|^application\/pdf$/.test(file.type)) {
+                toast.dismiss();
+                toast.error('O formato do arquivo não é suportado. Apenas arquivos JPG, PNG e PDF são permitidos.');
+            } else {
+                setFormData((prevData) => ({
+                    ...prevData,
+                    file,
+                }));
+                setFileSelected(true);
+                setSelectedFileName(file.name);
+                const fileUrl = URL.createObjectURL(file);
+                setFileUrl(fileUrl);
+            }
         } else {
             setFormData((prevData) => ({
                 ...prevData,
-                file,
+                file: null,
             }));
-            setFileSelected(!!file);
-            setSelectedFileName(file ? file.name : null);
-            if (file) {
-                const fileUrl = URL.createObjectURL(file);
-                setFileUrl(fileUrl);
-            } else {
-                setFileUrl(null);
-            }
+            setFileSelected(false);
+            setSelectedFileName(null);
+            setFileUrl(null);
         }
     };
+    
+    
 
     const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
         e.preventDefault();
@@ -131,6 +152,91 @@ const RequestForm: React.FC = () => {
             window.removeEventListener('resize', handleResize);
         };
     }, []);
+
+    const customOptions: CustomOption[] = [
+
+        {
+            value: 'Projetos',
+            label: 'Projetos',
+            description: 'Utilize esta fila para solicitar o desenvolvimento de um novo sistema dentro do ecossistema da Pormade Portas.',
+        },
+        {
+            value: 'Implementações',
+            label: 'Implementações',
+            description: 'Utilize esta fila para solicitar a adição de novos recursos em um sistema já existente no ecossistema da Pormade Portas.',
+        },{
+            value: 'Incidentes',
+            label: 'Incidentes',
+            description: 'Utilize esta fila exclusivamente para relatar eventos inesperados. Um incidente abrange situações em que algo que estava em funcionamento deixou de operar corretamente. Observe que configurações e solicitações de novos serviços não devem ser tratados como incidentes.',
+        },
+    ];
+
+    const handleSelectChange = (selectedOption: any, actionMeta: ActionMeta<any>) => {
+        if (actionMeta.action === 'select-option') {
+            setSelectedOption(selectedOption);
+        } else if (actionMeta.action === 'clear') {
+            setSelectedOption(null);
+        }
+    };
+
+    const Option = (props: any) => {
+        return (
+            <components.Option {...props}>
+                <div
+                    style={{
+                        whiteSpace: 'pre-wrap',
+                    }}
+                >
+                    <div>
+                        <span className="font-bold">{props.data.label}</span>
+                    </div>
+                    <div className="font-serif">{props.data.description}</div>
+                </div>
+            </components.Option>
+        );
+    };
+    
+    const customStyles = {
+        option: (provided: any, state: any) => ({
+            ...provided,
+            backgroundColor: state.isSelected ? '#2f2e2e' : '#2f2e2e',
+            color: state.isSelected ? 'white' : 'gray',
+            cursor: 'pointer',
+            ':hover': {
+                backgroundColor: '#0074cc',
+            },
+        }),
+
+        control: (provided: any) => ({
+            ...provided,
+            backgroundColor: '#2f2e2e',
+            border: 'none',
+            padding: '0.25rem 0',
+            cursor: 'pointer',
+        }),
+        singleValue: (provided: any) => ({
+            ...provided,
+            color: 'white',
+        }),
+    };
+    const ClearIndicator = (props: React.JSX.IntrinsicAttributes & ClearIndicatorProps<unknown, boolean, GroupBase<unknown>>) => {
+        return (
+            components.ClearIndicator && (
+                <components.ClearIndicator {...props}>
+                    <div
+                        onClick={props.clearValue}
+                        style={{
+                            cursor: 'pointer',
+                            color: '#0074cc', // Cor azul para limpar a seleção
+                        }}
+                    >
+                        Limpar
+                    </div>
+                </components.ClearIndicator>
+            )
+        );
+    };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -272,12 +378,12 @@ const RequestForm: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 mb-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 mb-3">
                         <div className="mb-0.5 relative">
                             <label
                                 htmlFor="phone"
                                 className={`block font-bold text-white-900 transition-transform ${formData.phone || formData.phone.length > 0 ? '-translate-y-5 text-xs text-gray-400' : ''
-                                    } absolute left-4 top-2/4 transform -translate-y-2/4 ${formData.phone || formData.phone.length > 0 ? 'active' : ''
+                                    } absolute left-4 top-1/3 mt-1 transform -translate-y-2/4 ${formData.phone || formData.phone.length > 0 ? 'active' : ''
                                     }`}
                             >
                                 Telefone do Solicitante:
@@ -304,7 +410,7 @@ const RequestForm: React.FC = () => {
                             <label
                                 htmlFor="sector"
                                 className={`block font-bold text-gray-100 transition-transform ${labelActive ? '-translate-y-5 text-xs  text-gray-400' : ''
-                                    } absolute left-4 top-2/4 transform -translate-y-2/4 ${labelActive ? 'active' : ''
+                                    } absolute left-4 top-1/3 mt-1 transform -translate-y-2/4 ${labelActive ? 'active' : ''
                                     }`}
                             >
                                 Setor
@@ -326,34 +432,26 @@ const RequestForm: React.FC = () => {
                                 ))}
                             </select>
                         </div>
-
-                    </div>
-                    <div className="mb-3 relative">
-                        <label
-                            htmlFor="type"
-                            className={`block font-bold text-gray-100 transition-transform ${formData.unit || formData.unit.length > 0 ? '-translate-y-5 text-xs text-gray-400' : ''
-                                } absolute left-4 top-2/4 transform -translate-y-2/4 ${formData.unit || formData.unit.length > 0 ? 'active' : ''
-                                }`}
-                        >
-                            Tipo Ticket:
-                        </label>
-                        <select
-                            id="type"
-                            name="type"
-                            value={formData.type}
-                            onChange={(e) => handleChangeSelect(e)}
-                            onFocus={() => handleInputChange('type', '')}
-                            onBlur={() => {
-                                if (!formData.unit || formData.unit.length === 0) {
-                                    handleInputChange('type', '');
-                                }
-                            }}
-                            className={`bg-[#2f2e2e] border border-gray-300 px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
-                            style={{ padding: '1.2rem 0.4rem 0.2rem 0.4rem ' }}
-                        >
-                            <option value=""></option>
-
-                        </select>
+                        <div className="mb-0.5 relative">
+                            <label
+                                htmlFor="type"
+                                className={`block font-bold text-white-900 transition-transform z-10 ${selectedOption ? '-translate-y-2 text-xs text-gray-400' : ''
+                                    } absolute left-4 top-${selectedOption ? '-2' : '1/2'
+                                    } transform -translate-y-2/4 ${selectedOption ? 'active' : ''}`}
+                            >
+                               
+                            </label>
+                            <Select
+                                id="type"
+                                options={customOptions}
+                                value={selectedOption}
+                                onChange={handleSelectChange}
+                                components={{ ClearIndicator, Option }}
+                                isSearchable={false}
+                                styles={customStyles}
+                                className="bg-[#2f2e2e] border border-gray-300 rounded-md w-full focus:outline-none focus:ring"
+                            />
+                        </div>
                     </div>
                     <div className="mb-4 relative">
                         <label
@@ -408,8 +506,6 @@ const RequestForm: React.FC = () => {
                             </label>
                         </div>
                     </div>
-
-
                     <div className="flex flex-col items-center justify-center h-full">
                         <label
                             htmlFor="file"
@@ -428,13 +524,14 @@ const RequestForm: React.FC = () => {
                             <div className={`text-gray-400 mt-2 mb-1 font-serif ${fileSelected ? 'hidden' : ''}`}>
                                 É permitido enviar apenas um arquivo. Caso precise enviar mais de um arquivo, por favor, comprima-os em um único arquivo antes de enviar.
                             </div>
-                            {selectedFileName && (
-                                <div className={`mt-2 mb-1 font-serif text-gray-400 ${fileSelected ? '' : 'hidden'}`}>
-                                    <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-                                        {selectedFileName}
-                                    </a>
-                                </div>
-                            )}
+                            {selectedFileName && fileUrl && (
+    <div className={`mt-2 mb-1 font-serif text-gray-400 ${fileSelected ? '' : 'hidden'}`}>
+        <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+            {selectedFileName}
+        </a>
+    </div>
+)}
+
                             {/* {selectedFileName && fileUrl && (
                                 <div className={`mt-2 mb-1 font-serif text-gray-400 ${fileSelected ? '' : 'hidden'}`}>
                                     <a href={fileUrl} target="_blank" rel="noopener noreferrer">
@@ -442,6 +539,7 @@ const RequestForm: React.FC = () => {
                                     </a>
                                 </div>
                             )} */}
+                            
 
                             <input
                                 type="file"
@@ -498,3 +596,7 @@ const RequestForm: React.FC = () => {
 };
 
 export default RequestForm;
+
+//esta me retonadoe
+
+
