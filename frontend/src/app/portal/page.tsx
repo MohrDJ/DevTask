@@ -5,14 +5,12 @@ import { BsFolder } from 'react-icons/bs';
 import Image from 'next/image';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Select, { ActionMeta, ClearIndicatorProps, GroupBase, components } from 'react-select';
-import styled from 'styled-components';
+import { ActionMeta} from 'react-select';
+import LottieAnimation from '@/components/animation/configAnimation';
+import animationData from '../../assets/animations/animation_ln1zz6z5.json';
+import { Option, customStyles, ClearIndicator, CustomSelect, CustomOption } from '../../components/selectReact/constructor';
+import FloatingLabelInput from '@/components/LabelFloat/float';
 
-interface CustomOption {
-    value: string;
-    label: string;
-    description: string;
-}
 
 const RequestForm: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -31,10 +29,10 @@ const RequestForm: React.FC = () => {
     const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [fileUrl, setFileUrl] = useState<string | null>(null);
-    const [options, setOptions] = useState([]);
-    const [labelActive, setLabelActive] = useState(false);
+    const [selectedSector, setSelectedSector] = useState<CustomOption | null>(null);
+    const [sectorOptions, setSectorOptions] = useState<CustomOption[]>([]);
     const [selectedOption, setSelectedOption] = useState<CustomOption | null>(null);
-
+    const [animationShown, setAnimationShown] = useState(false);
 
 
 
@@ -51,7 +49,7 @@ const RequestForm: React.FC = () => {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
-    
+
         if (file) {
             if (file.size > 25 * 1024 * 1024) {
                 toast.error('O arquivo selecionado é muito grande. O tamanho máximo permitido é de 25MB.');
@@ -78,8 +76,6 @@ const RequestForm: React.FC = () => {
             setFileUrl(null);
         }
     };
-    
-    
 
     const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
         e.preventDefault();
@@ -107,30 +103,19 @@ const RequestForm: React.FC = () => {
     };
 
     useEffect(() => {
-        axios.get('/api/options')
+        axios.get('/api/')
             .then(response => {
-                setOptions(response.data);
+                setSectorOptions(response.data);
             })
             .catch(error => {
-                console.error('Erro ao buscar opções:', error);
+                console.error('Erro ao buscar opções de setor:', error);
             });
     }, []);
 
-    const handleChangeSelect = (e: any) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-    };
 
-    const handleSelectFocus = () => {
-        setLabelActive(true);
-    };
-
-    const handleSelectBlur = () => {
-        if (!formData.sector) {
-            setLabelActive(false);
+    const handleSelectChangeSector = (selectedOption: CustomOption | null, actionMeta: ActionMeta<any>) => {
+        if (actionMeta.action === 'select-option') {
+            setSelectedSector(selectedOption);
         }
     };
 
@@ -154,7 +139,7 @@ const RequestForm: React.FC = () => {
     }, []);
 
     const customOptions: CustomOption[] = [
-
+      
         {
             value: 'Projetos',
             label: 'Projetos',
@@ -164,79 +149,21 @@ const RequestForm: React.FC = () => {
             value: 'Implementações',
             label: 'Implementações',
             description: 'Utilize esta fila para solicitar a adição de novos recursos em um sistema já existente no ecossistema da Pormade Portas.',
-        },{
+        }, {
             value: 'Incidentes',
             label: 'Incidentes',
             description: 'Utilize esta fila exclusivamente para relatar eventos inesperados. Um incidente abrange situações em que algo que estava em funcionamento deixou de operar corretamente. Observe que configurações e solicitações de novos serviços não devem ser tratados como incidentes.',
         },
     ];
 
-    const handleSelectChange = (selectedOption: any, actionMeta: ActionMeta<any>) => {
+    const handleSelectChange = (selectedOption: CustomOption | null, actionMeta: ActionMeta<any>) => {
         if (actionMeta.action === 'select-option') {
-            setSelectedOption(selectedOption);
-        } else if (actionMeta.action === 'clear') {
-            setSelectedOption(null);
+            setFormData((prevData) => ({
+                ...prevData,
+                type: selectedOption?.value || '',
+            }));
         }
     };
-
-    const Option = (props: any) => {
-        return (
-            <components.Option {...props}>
-                <div
-                    style={{
-                        whiteSpace: 'pre-wrap',
-                    }}
-                >
-                    <div>
-                        <span className="font-bold">{props.data.label}</span>
-                    </div>
-                    <div className="font-serif">{props.data.description}</div>
-                </div>
-            </components.Option>
-        );
-    };
-    
-    const customStyles = {
-        option: (provided: any, state: any) => ({
-            ...provided,
-            backgroundColor: state.isSelected ? '#2f2e2e' : '#2f2e2e',
-            color: state.isSelected ? 'white' : 'gray',
-            cursor: 'pointer',
-            ':hover': {
-                backgroundColor: '#0074cc',
-            },
-        }),
-
-        control: (provided: any) => ({
-            ...provided,
-            backgroundColor: '#2f2e2e',
-            border: 'none',
-            padding: '0.25rem 0',
-            cursor: 'pointer',
-        }),
-        singleValue: (provided: any) => ({
-            ...provided,
-            color: 'white',
-        }),
-    };
-    const ClearIndicator = (props: React.JSX.IntrinsicAttributes & ClearIndicatorProps<unknown, boolean, GroupBase<unknown>>) => {
-        return (
-            components.ClearIndicator && (
-                <components.ClearIndicator {...props}>
-                    <div
-                        onClick={props.clearValue}
-                        style={{
-                            cursor: 'pointer',
-                            color: '#0074cc', // Cor azul para limpar a seleção
-                        }}
-                    >
-                        Limpar
-                    </div>
-                </components.ClearIndicator>
-            )
-        );
-    };
-
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -276,20 +203,30 @@ const RequestForm: React.FC = () => {
                     type: 'Selecione um tipo',
                     title: ''
                 });
-                setError(null);
+                setError('Ocorreu um erro');
                 toast.dismiss();
                 toast.success('Solicitação enviada com sucesso', {
-                    autoClose: 5000,
+                    autoClose: 10,
                 });
             } else {
                 setError('Ocorreu um erro durante o envio.');
                 toast.dismiss();
                 toast.error('Erro durante o envio. Verifique os campos');
+                setAnimationShown(true);
+                setTimeout(() => {
+                    setAnimationShown(false);
+                }, 1500);
+
             }
         } catch (error) {
             setError('Ocorreu um erro no servidor.');
             toast.dismiss();
             toast.error('Erro no servidor. Verifique os campos');
+            setAnimationShown(true);
+            setTimeout(() => {
+                setAnimationShown(false);
+            }, 1500);
+
         }
     };
     const isWideScreen = windowWidth > 2000;
@@ -318,119 +255,54 @@ const RequestForm: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 mb-3">
                         <div className="mb-0.5 relative">
-                            <label
-                                htmlFor="name"
-                                className={`block font-bold text-white-900 transition-transform ${formData.name || formData.name.length > 0 ? '-translate-y-5 text-xs text-gray-400' : ''
-                                    } absolute left-4 top-2/4 transform -translate-y-2/4 ${formData.name || formData.name.length > 0 ? 'active' : ''
-                                    }`}
-                            >
-                                Nome do Solicitante:
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
+                            <FloatingLabelInput
+                                label="Nome do solicitante:"
                                 name="name"
                                 value={formData.name}
                                 onChange={(e) => handleInputChange('name', e.target.value)}
-                                onFocus={() => {
-                                    handleInputChange('name', '');
-
-                                }}
-                                onBlur={() => {
-                                    if (!formData.name || formData.name.length === 0) {
-                                        handleInputChange('name', '');
-                                    }
-                                }}
-                                required
-                                className={`bg-[#2f2e2e] border border-gray-300 px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
-                                style={{ padding: '1rem 0.4rem 0.2rem 0.4rem ' }}
+                                type="text"
                             />
                         </div>
-
                         <div className="0.5 relative">
-                            <label
-                                htmlFor="email"
-                                className={`block font-bold text-white-900 transition-transform ${formData.email || formData.email.length > 0 ? '-translate-y-5 text-xs text-gray-400' : ''
-                                    } absolute left-4 top-2/4 transform -translate-y-2/4 ${formData.email || formData.email.length > 0 ? 'active' : ''
-                                    }`}
-                            >
-                                E-mail do Solicitante:
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
+                            <FloatingLabelInput
+                                label="E-mail do Solicitante:"
                                 name="email"
                                 value={formData.email}
                                 onChange={(e) => handleInputChange('email', e.target.value)}
-                                onFocus={() => {
-                                    handleInputChange('email', '');
-
-                                }}
-                                onBlur={() => {
-                                    if (!formData.email || formData.email.length === 0) {
-                                        handleInputChange('email', '');
-                                    }
-                                }}
-                                required
-                                className={`bg-[#2f2e2e] border border-gray-300 px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
-                                style={{ padding: '1rem 0.4rem 0.2rem 0.4rem ' }}
+                                type="email" 
                             />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 mb-3">
                         <div className="mb-0.5 relative">
-                            <label
-                                htmlFor="phone"
-                                className={`block font-bold text-white-900 transition-transform ${formData.phone || formData.phone.length > 0 ? '-translate-y-5 text-xs text-gray-400' : ''
-                                    } absolute left-4 top-1/3 mt-1 transform -translate-y-2/4 ${formData.phone || formData.phone.length > 0 ? 'active' : ''
-                                    }`}
-                            >
-                                Telefone do Solicitante:
-                            </label>
-                            <input
-                                type="tel"
-                                id="phone"
+                            <FloatingLabelInput
+                                label="Telefone do Solicitante:"
                                 name="phone"
                                 value={formData.phone}
                                 onChange={(e) => handleInputChange('phone', e.target.value)}
-                                onFocus={() => handleInputChange('phone', '')}
-                                onBlur={() => {
-                                    if (!formData.phone || formData.phone.length === 0) {
-                                        handleInputChange('phone', '');
-                                    }
-                                }}
-                                required
-                                className={`bg-[#2f2e2e] border border-gray-300 px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
-                                style={{ padding: '1rem 0.4rem 0.2rem 0.4rem ' }}
+                                type="tel" 
                             />
                         </div>
 
                         <div className="mb-0.5 relative">
                             <label
                                 htmlFor="sector"
-                                className={`block font-bold text-gray-100 transition-transform ${labelActive ? '-translate-y-5 text-xs  text-gray-400' : ''
-                                    } absolute left-4 top-1/3 mt-1 transform -translate-y-2/4 ${labelActive ? 'active' : ''
+                                className={`block font-bold text-gray-100 transition-transform ${selectedSector ? '-translate-y-5 text-xs  text-gray-400' : ''
+                                    } absolute left-4 top-1/3 mt-2 transform -translate-y-2/4 ${selectedSector ? 'active' : ''
                                     }`}
                             >
                                 Setor
                             </label>
-                            <select
+                            <CustomSelect
                                 id="sector"
-                                name="sector"
-                                value={formData.sector}
-                                onChange={(e) => handleChangeSelect(e)}
-                                onFocus={handleSelectFocus}
-                                onBlur={handleSelectBlur}
-                                className={`bg-[#2f2e2e] border border-gray-300 px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
-                                style={{ padding: '1.2rem 0.4rem 0.2rem 0.4rem ' }}
-                            >
-                                <option value=""></option>
-                                <option value="teste">teste</option>
-                                {options.map((option, index) => (
-                                    <option key={index} value={option}>{option}</option>
-                                ))}
-                            </select>
+                                options={sectorOptions}
+                                value={selectedSector}
+                                onChange={handleSelectChangeSector}
+                                isSearchable={false}
+                                styles={customStyles}
+                                placeholder='Setor:'
+                            />
                         </div>
                         <div className="mb-0.5 relative">
                             <label
@@ -438,50 +310,26 @@ const RequestForm: React.FC = () => {
                                 className={`block font-bold text-white-900 transition-transform z-10 ${selectedOption ? '-translate-y-2 text-xs text-gray-400' : ''
                                     } absolute left-4 top-${selectedOption ? '-2' : '1/2'
                                     } transform -translate-y-2/4 ${selectedOption ? 'active' : ''}`}
-                            >
-                               
-                            </label>
-                            <Select
+                            ></label>
+                            <CustomSelect
                                 id="type"
                                 options={customOptions}
-                                value={selectedOption}
+                                value={customOptions.find(option => option.value === formData.type) || null}
                                 onChange={handleSelectChange}
-                                components={{ ClearIndicator, Option }}
                                 isSearchable={false}
                                 styles={customStyles}
-                                className="bg-[#2f2e2e] border border-gray-300 rounded-md w-full focus:outline-none focus:ring"
+                                placeholder='Tipo Ticket:'
                             />
                         </div>
                     </div>
                     <div className="mb-4 relative">
-                        <label
-                            htmlFor="title"
-                            className={`block font-bold text-white-900 transition-transform ${formData.title || formData.title.length > 0 ? '-translate-y-5 text-xs text-gray-400' : ''
-                                } absolute left-4 top-2/4 transform -translate-y-2/4 ${formData.title || formData.title.length > 0 ? 'active' : ''
-                                }`}
-                        >
-                            Título da Solicitação:
-                        </label>
-                        <input
-                            type="text"
-                            id="title"
-                            name="title"
-                            value={formData.title}
-                            onChange={(e) => handleInputChange('title', e.target.value)}
-                            onFocus={() => {
-                                handleInputChange('title', '');
-
-                            }}
-                            onBlur={() => {
-                                if (!formData.name || formData.name.length === 0) {
-                                    handleInputChange('title', '');
-                                }
-
-                            }}
-                            required
-                            className={`bg-[#2f2e2e] border border-gray-300 px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
-                            style={{ padding: '1rem 0.4rem 0.2rem 0.4rem ' }}
-                        />
+                    <FloatingLabelInput
+                                label="Título da Solicitação:"
+                                name="title"
+                                value={formData.title}
+                                onChange={(e) => handleInputChange('title', e.target.value)}
+                                type="text" 
+                            />
                     </div>
                     <div className="mb-3">
                         <div className="relative">
@@ -525,12 +373,12 @@ const RequestForm: React.FC = () => {
                                 É permitido enviar apenas um arquivo. Caso precise enviar mais de um arquivo, por favor, comprima-os em um único arquivo antes de enviar.
                             </div>
                             {selectedFileName && fileUrl && (
-    <div className={`mt-2 mb-1 font-serif text-gray-400 ${fileSelected ? '' : 'hidden'}`}>
-        <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-            {selectedFileName}
-        </a>
-    </div>
-)}
+                                <div className={`mt-2 mb-1 font-serif text-gray-400 ${fileSelected ? '' : 'hidden'}`}>
+                                    <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+                                        {selectedFileName}
+                                    </a>
+                                </div>
+                            )}
 
                             {/* {selectedFileName && fileUrl && (
                                 <div className={`mt-2 mb-1 font-serif text-gray-400 ${fileSelected ? '' : 'hidden'}`}>
@@ -539,7 +387,7 @@ const RequestForm: React.FC = () => {
                                     </a>
                                 </div>
                             )} */}
-                            
+
 
                             <input
                                 type="file"
@@ -568,12 +416,10 @@ const RequestForm: React.FC = () => {
                                 >
                                     Anexar Arquivo
                                 </button>
-
                                 <span style={{ fontSize: '0.79rem', marginLeft: '8px', marginTop: '0.49rem' }}>
                                     Tamanho Máximo 25MB
                                 </span>
                             </div>
-
                         </label>
                     </div>
                     <div className="flex gap-2 self-end">
@@ -587,8 +433,12 @@ const RequestForm: React.FC = () => {
                         </button>
                     </div>
                 </form>
-                <ToastContainer />
                 <footer className=" h-6rem min-h-[48px] w-full  botton-0 relative mt-10" style={{ backgroundColor: "#000000" }}>
+                    {error && animationShown && (
+                        <div className="fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-60 flex items-center justify-center">
+                            <LottieAnimation animationData={animationData} />
+                        </div>
+                    )}
                 </footer>
             </main>
         </div>
@@ -597,6 +447,7 @@ const RequestForm: React.FC = () => {
 
 export default RequestForm;
 
-//esta me retonadoe
+
+
 
 
