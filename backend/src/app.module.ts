@@ -1,24 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FormularioModel } from './formulario/formulario.model';
-import { FormularioController } from './formulario/formulario.controller';
-import { FormularioService } from './formulario/formulario.services';
+import { FormularioModule } from './modules/formulario/formulario.module';
+import { dataBaseConfigOracle } from './shared/database.provider';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'oracle',
-      host: '192.131.2.170',
-      port: 1521,
-      username: 'sankhya',
-      password: 't363fir8',
-      database: 'APEX_TEST',
-      entities: [FormularioModel],
-      synchronize: true, // Ative apenas em ambiente de desenvolvimento
-    }),
-    TypeOrmModule.forFeature([FormularioModel]),
+    TypeOrmModule.forRoot(dataBaseConfigOracle),
+    FormularioModule,
   ],
-  controllers: [FormularioController],
-  providers: [FormularioService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

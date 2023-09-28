@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('DTASK_TICKET') 
-export class FormularioModel {
+export class FormularioEntity {
   @PrimaryGeneratedColumn()
   id_tipo_ticket: number;
 
