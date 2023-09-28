@@ -7,4 +7,7 @@ export class TipoTicketEntity {
 
   @Column()
   tipo: string;
+
+  @Column()
+  descritivo: string;
 }
