@@ -2,33 +2,33 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('DTASK_TICKET') 
 export class FormularioEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({name:'ID_TIPO_TICKET',type:'int'})
   id_tipo_ticket: number;
 
-  @Column({ length: 120 })
+  @Column({ name:'NOMESOLICITANTE', length: 120 })
   nomesolicitante: string;
 
-  @Column({ length: 255 })
+  @Column({name:'EMAILSOLICITANTE', length: 255 })
   emailsolicitante: string;
 
-  @Column({ type: 'varchar', length: 15 })
+  @Column({name:'TELEFONE', type: 'varchar', length: 15 })
   telefone: string; 
 
-  @Column('int')
+  @Column({name:'SETOR',type:'int'})
   setor: number; 
 
-  @Column({ length: 1500 })
+  @Column({ name:'DATACRIACAO', length: 1500 })
   descricao: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ name:'DATACRIACAO',type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   datacriacao: Date;
 
-  @Column()
+  @Column({name:'ETAPA'})
   etapa: string;
 
-  @Column('int')
+  @Column({name:'ABERTURA',type:'int'})
   abertura: number;
 
-  @Column()
+  @Column({name:'TITULO'})
   titulo: string;
 }
