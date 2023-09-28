@@ -1,12 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
+import { TipoTicketEntity } from './tipoticket.entity';
+import { SetorEntity } from './setor.entity';
 
 @Entity('DTASK_TICKET') 
 export class FormularioEntity {
   @PrimaryGeneratedColumn({name:'ID',type:'int'})
   id: number;
 
-  @Column({ name: 'ID_TIPO_TICKET', type: 'int' })
-  id_tipo_ticket: number;  
+  @ManyToOne(() => TipoTicketEntity) 
+  @JoinColumn({ name: 'ID_TIPO_TICKET' })
+  tipoTicket: TipoTicketEntity; 
 
   @Column({ name:'NOMESOLICITANTE', length: 120 })
   nomesolicitante: string;
@@ -17,8 +20,9 @@ export class FormularioEntity {
   @Column({name:'TELEFONE', type: 'varchar', length: 15 })
   telefone: string; 
 
-  @Column({name:'SETOR',type:'int'})
-  setor: number; 
+  @ManyToOne(() => SetorEntity)
+  @JoinColumn({ name: 'ID_SETOR' })
+  setor: SetorEntity;
 
   @Column({ name:'DESCRICAO', length: 1500 })
   descricao: string;
