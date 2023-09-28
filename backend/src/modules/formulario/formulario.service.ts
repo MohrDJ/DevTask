@@ -11,8 +11,9 @@ export class FormularioService {
     private readonly formularioRepository: Repository<FormularioEntity>,
   ) {}
 
-  async create(formularioData: any) {
-
+  async create(formularioCriar: FormularioEntity): Promise<FormularioEntity> {
+    const createdFormulario = await this.formularioRepository.save(formularioCriar);
+    return createdFormulario;
   }
 
   async findAll() {

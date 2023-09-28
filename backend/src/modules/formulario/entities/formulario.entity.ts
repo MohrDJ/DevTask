@@ -2,8 +2,11 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('DTASK_TICKET') 
 export class FormularioEntity {
-  @PrimaryGeneratedColumn({name:'ID_TIPO_TICKET',type:'int'})
-  id_tipo_ticket: number;
+  @PrimaryGeneratedColumn({name:'ID',type:'int'})
+  id: number;
+
+  @Column({ name: 'ID_TIPO_TICKET', type: 'int' })
+  id_tipo_ticket: number;  
 
   @Column({ name:'NOMESOLICITANTE', length: 120 })
   nomesolicitante: string;
@@ -17,7 +20,7 @@ export class FormularioEntity {
   @Column({name:'SETOR',type:'int'})
   setor: number; 
 
-  @Column({ name:'DATACRIACAO', length: 1500 })
+  @Column({ name:'DESCRICAO', length: 1500 })
   descricao: string;
 
   @Column({ name:'DATACRIACAO',type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
