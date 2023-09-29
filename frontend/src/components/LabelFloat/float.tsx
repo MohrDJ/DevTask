@@ -5,15 +5,17 @@ interface FloatingLabelInputProps {
   name: string;
   value?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  type?: string; 
+  type?: string;
+  error?: boolean; 
 }
 
 const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
   label,
   name,
-  value = '', 
+  value = '',
   onChange,
   type = 'text',
+  error = false,
 }) => {
   const [isActive, setIsActive] = useState(!!value);
 
@@ -28,7 +30,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
   };
 
   return (
-    <div className={`mb-0.5 relative ${isActive ? 'active' : ''}`}>
+    <div className={`mb-0.5 relative ${isActive || error ? 'active' : ''}`}>
       <label
         htmlFor={name}
         className={`block font-bold text-white-900 transition-transform ${
@@ -43,12 +45,14 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
         type={type}
         id={name}
         name={name}
-        defaultValue={value} 
+        defaultValue={value}
         onChange={onChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
         required
-        className={`bg-[#2f2e2e] border border-gray-300 px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
+        className={`bg-[#2f2e2e] border ${
+          error ? 'border-red-500' : 'border-gray-300'
+        } px-3 py-2 rounded-md w-full focus:outline-none focus:ring focus:border-blue-350`}
         style={{ padding: '1rem 0.4rem 0.2rem 0.4rem' }}
       />
     </div>

@@ -5,8 +5,8 @@ import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Solicitação de Serviço',
-  description: 'Formulario para realizar solicitações de serviços de desenvolvimento',
+  title: 'Criar Ticket',
+  description: 'Formulário para realizar a criação de um novo ticket',
 }
 
 export default function RootLayout({

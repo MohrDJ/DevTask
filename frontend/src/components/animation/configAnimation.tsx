@@ -7,11 +7,11 @@ interface LottieAnimationProps {
 
 const LottieAnimation: React.FC<LottieAnimationProps> = ({ animationData }) => {
   const animationContainer = useRef<HTMLDivElement | null>(null);
-  let anim: AnimationItem | null = null;
+  const animRef = useRef<AnimationItem | null>(null);
 
   useEffect(() => {
     if (animationContainer.current && animationData) {
-      anim = lottie.loadAnimation({
+      animRef.current = lottie.loadAnimation({
         container: animationContainer.current,
         renderer: 'svg',
         loop: true,
@@ -20,8 +20,8 @@ const LottieAnimation: React.FC<LottieAnimationProps> = ({ animationData }) => {
       });
 
       return () => {
-        if (anim) {
-          anim.destroy();
+        if (animRef.current) {
+          animRef.current.destroy();
         }
       };
     }
