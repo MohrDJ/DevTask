@@ -483,13 +483,12 @@ const RequestForm: React.FC = () => {
                         </button>
                     </div>
                 </form>
-                {error && animationShown && (
-                    <div className="fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-60 flex items-center justify-center">
-                        <LottieAnimation animationData={animationData} />
-                    </div>
-                )}
-                <ToastContainer></ToastContainer>
-                <footer className="bg-gray-600 text-white h-8 w-full bottom-0 absolute">
+                <footer className=" h-6rem min-h-[48px] w-full  botton-0 relative mt-10" style={{ backgroundColor: "#000000" }}>
+                    {error && animationShown && (
+                        <div className="fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-60 flex items-center justify-center">
+                            <LottieAnimation animationData={animationData} />
+                        </div>
+                    )}
                 </footer>
 
             </main>
