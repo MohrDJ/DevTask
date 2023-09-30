@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
-import { UploadService } from './upload.service';
-import { UploadController } from './upload.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ArquivoService } from '../upload/upload.service';
+import { ArquivoController } from '../upload/upload.controller';
+import { Image } from './entities/upload.entity';
 
 @Module({
-  controllers: [UploadController],
-  providers: [UploadService],
+  imports: [TypeOrmModule.forFeature([Image])],
+  providers: [ArquivoService],
+  controllers: [ArquivoController],
 })
-export class UploadModule {}
+export class ArquivoModule {}
