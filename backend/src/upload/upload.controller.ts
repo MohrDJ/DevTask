@@ -22,7 +22,7 @@ export class ArquivoController {
 
     const { ticketId } = ticketUploadDto;
 
-    // Verifique se o ticketId é válido consultando o banco de dados
+    // Verifica se o ticketId é válido consultando o banco de dados
     const formulario = await this.formularioService.findOneByTicketId(ticketId);
 
     if (!formulario) {

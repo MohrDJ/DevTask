@@ -2,10 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Express } from 'express';
+import { FormularioEntity } from 'src/modules/formulario/entities/formulario.entity';
 import { FindOneOptions, Repository } from 'typeorm';
 import { Image } from '../upload/entities/upload.entity';
-import { FormularioEntity } from 'src/modules/formulario/entities/formulario.entity';
 
 @Injectable()
 export class ArquivoService {
@@ -18,25 +17,25 @@ export class ArquivoService {
 
   async uploadArquivo(
     file: Express.Multer.File,
-    customFileName: string, // Adicione este parâmetro
+    customFileName: string,
     ticketId: number
   ): Promise<string> {
-    const uploadDir = 'uploads'; // Diretório de upload
+    const uploadDir = '\\\\192.131.2.206\\arquivos\\imagens'; // Diretório de upload
     const allowedMimeTypes = [
       'image/jpeg',
       'image/png',
-      'image/gif',
+      'image/jpg',
       'application/pdf', // PDF
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // Excel (XLSX)
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // Word (DOCX)
     ];
 
-    // Verifique se o tipo de arquivo é permitido
+    // Verifica se o tipo de arquivo é permitido
     if (!allowedMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException('Tipo de arquivo não suportado.');
     }
 
-    // Use o nome de arquivo com base no ID do ticket e no customFileName
+    // Usa o nome de arquivo com base no ID do ticket e no customFileName
     const imageFileName = `DevTask${ticketId}_${Date.now()}_${customFileName}`;
     const imagePath = path.join(uploadDir, imageFileName);
 
@@ -47,17 +46,17 @@ export class ArquivoService {
       throw new Error(`Erro ao salvar a imagem: ${error.message}`);
     }
 
-    // Crie a URL da imagem com base no caminho do servidor
-    const imageUrl = `http://seu-servidor.com/${imagePath}`;
+    // Cria a URL da imagem com base no caminho do servidor
+    const imageUrl = `http://DevTask.com/${imagePath}`;
 
-    // Busque a instância de FormularioEntity com base no ID do ticket
+    // Busca a instância de FormularioEntity com base no ID do ticket
     const formulario = await this.formularioRepository.findOne({ where: { id: ticketId } } as FindOneOptions<FormularioEntity>);
 
     if (!formulario) {
       throw new BadRequestException('Formulário não encontrado.');
     }
 
-    // Salve a URL e o relacionamento no banco de dados
+    // Salva a URL e o relacionamento no banco de dados
     const image = new Image();
     image.nome_arquivo = imageFileName;
     image.url = imageUrl;
