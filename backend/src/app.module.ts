@@ -2,15 +2,15 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FormularioModule } from './modules/formulario/formulario.module';
 import { dataBaseConfigOracle } from './shared/database.provider';
-import { ArquivoController } from './modules/upload/upload.controller';
-import { ArquivoService } from './modules/upload/upload.service';
+import { ArquivoModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(dataBaseConfigOracle),
     FormularioModule,
+    ArquivoModule,
   ],
-  controllers: [ArquivoController],
-  providers: [ArquivoService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

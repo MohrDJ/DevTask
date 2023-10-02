@@ -10,7 +10,7 @@ import { dataBaseConfigOracle } from 'src/shared/database.provider';
     TypeOrmModule.forFeature([FormularioEntity], dataBaseConfigOracle),
   ],
   controllers: [FormularioController],
-  providers: [FormularioService],
+  providers: [FormularioService], 
   exports: [FormularioService],
 })
 export class FormularioModule {}

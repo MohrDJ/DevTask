@@ -1,12 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ArquivoService } from './upload.service';
-import { ArquivoController } from './upload.controller';
-import { Image } from './entities/upload.entity';
+import { UploadController } from './upload.controller';
+import { UploadService } from './upload.service';
+import { UploadEntity } from './entities/upload.entity';
+import { dataBaseConfigOracle } from 'src/shared/database.provider';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Image])],
-  providers: [ArquivoService],
-  controllers: [ArquivoController],
+  imports: [
+    TypeOrmModule.forFeature([UploadEntity], dataBaseConfigOracle)
+  ],
+  controllers: [UploadController], 
+  providers: [UploadService],
+  exports: [UploadService],
 })
 export class ArquivoModule {}

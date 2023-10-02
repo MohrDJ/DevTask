@@ -1,14 +1,14 @@
 import { Controller, Post, UseInterceptors, UploadedFile, BadRequestException, Body } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ArquivoService } from '../upload/upload.service';
+import { UploadService } from '../upload/upload.service';
 import { Express } from 'express';
-import { TicketUploadDto } from './TicketDto'; // Verifique o caminho correto
+import { TicketUploadDto } from './TicketDto';
 import { FormularioService } from 'src/modules/formulario/formulario.service';
 
 @Controller('image')
-export class ArquivoController {
+export class UploadController {
   constructor(
-    private readonly imageService: ArquivoService,
+    private readonly imageService: UploadService,
     private readonly formularioService: FormularioService,
   ) {}
 

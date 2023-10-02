@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 't
 import { FormularioEntity } from 'src/modules/formulario/entities/formulario.entity';
 
 @Entity('DTASK_ARQUIVOS')
-export class Image {
+export class UploadEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

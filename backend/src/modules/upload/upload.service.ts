@@ -4,13 +4,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { FormularioEntity } from 'src/modules/formulario/entities/formulario.entity';
 import { FindOneOptions, Repository } from 'typeorm';
-import { Image } from '../upload/entities/upload.entity';
+import { UploadEntity } from '../upload/entities/upload.entity';
 
 @Injectable()
-export class ArquivoService {
+export class UploadService {
   constructor(
-    @InjectRepository(Image)
-    private imageRepository: Repository<Image>,
+    @InjectRepository(UploadEntity)
+    private imageRepository: Repository<UploadEntity>,
     @InjectRepository(FormularioEntity)
     private formularioRepository: Repository<FormularioEntity>,
   ) {}
@@ -57,7 +57,7 @@ export class ArquivoService {
     }
 
     // Salva a URL e o relacionamento no banco de dados
-    const image = new Image();
+    const image = new UploadEntity();
     image.nome_arquivo = imageFileName;
     image.url = imageUrl;
     image.tipoTicket = formulario;
