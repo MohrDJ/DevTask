@@ -2,12 +2,13 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
-import { FormularioEntity } from 'src/modules/formulario/entities/formulario.entity';
+import { Express } from 'express';
 import { FindOneOptions, Repository } from 'typeorm';
 import { Image } from '../upload/entities/upload.entity';
+import { FormularioEntity } from 'src/modules/formulario/entities/formulario.entity';
 
 @Injectable()
-export class ImageService {
+export class ArquivoService {
   constructor(
     @InjectRepository(Image)
     private imageRepository: Repository<Image>,
@@ -15,7 +16,11 @@ export class ImageService {
     private formularioRepository: Repository<FormularioEntity>,
   ) {}
 
-  async uploadArquivo(file: Express.Multer.File, ticketId: number): Promise<string> {
+  async uploadArquivo(
+    file: Express.Multer.File,
+    customFileName: string, // Adicione este parâmetro
+    ticketId: number
+  ): Promise<string> {
     const uploadDir = 'uploads'; // Diretório de upload
     const allowedMimeTypes = [
       'image/jpeg',
@@ -31,8 +36,8 @@ export class ImageService {
       throw new BadRequestException('Tipo de arquivo não suportado.');
     }
 
-    // Use o nome de arquivo com base no ID do ticket
-    const imageFileName = `DevTask${ticketId}_${Date.now()}_${file.originalname}`;
+    // Use o nome de arquivo com base no ID do ticket e no customFileName
+    const imageFileName = `DevTask${ticketId}_${Date.now()}_${customFileName}`;
     const imagePath = path.join(uploadDir, imageFileName);
 
     // Salve a imagem no sistema de arquivos

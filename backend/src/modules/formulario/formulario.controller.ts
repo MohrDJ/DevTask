@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { FormularioService } from './formulario.service';
 import { FormularioEntity } from './entities/formulario.entity';
 
@@ -15,5 +15,10 @@ export class FormularioController {
   @Get()
   findAll() {
     return this.formularioService.findAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<FormularioEntity | undefined> {
+    return this.formularioService.findOneByTicketId(+id);
   }
 }

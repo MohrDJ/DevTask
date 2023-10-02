@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FormularioEntity } from './entities/formulario.entity';
 import { Repository } from 'typeorm';
-import { DB_ORACLE_DATABASE } from 'src/shared/database.provider';
+import { FormularioEntity } from './entities/formulario.entity';
 
 @Injectable()
 export class FormularioService {
   constructor(
-    @InjectRepository(FormularioEntity, DB_ORACLE_DATABASE)
+    @InjectRepository(FormularioEntity)
     private readonly formularioRepository: Repository<FormularioEntity>,
   ) {}
 
@@ -16,7 +15,11 @@ export class FormularioService {
     return createdFormulario;
   }
 
-  async findAll() {
-    return this.formularioRepository.find()
+  async findAll(): Promise<FormularioEntity[]> {
+    return this.formularioRepository.find();
   }
+
+  async findOneByTicketId(ticketId: number): Promise<FormularioEntity | undefined> {
+    return this.formularioRepository.findOne({ where: { id: ticketId } });
+  }  
 }

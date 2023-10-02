@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ArquivoService } from '../upload/upload.service';
-import { ArquivoController } from '../upload/upload.controller';
+import { ArquivoService } from './upload.service';
+import { ArquivoController } from './upload.controller';
 import { Image } from './entities/upload.entity';
 
 @Module({
