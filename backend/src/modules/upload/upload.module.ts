@@ -4,13 +4,15 @@ import { UploadController } from './upload.controller';
 import { UploadService } from './upload.service';
 import { UploadEntity } from './entities/upload.entity';
 import { dataBaseConfigOracle } from 'src/shared/database.provider';
+import { FormularioEntity } from '../formulario/entities/formulario.entity';
+import { FormularioService } from '../formulario/formulario.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UploadEntity], dataBaseConfigOracle)
+    TypeOrmModule.forFeature([UploadEntity, FormularioEntity], dataBaseConfigOracle)
   ],
-  controllers: [UploadController], 
-  providers: [UploadService],
+  controllers: [UploadController],
+  providers: [UploadService, FormularioService],
   exports: [UploadService],
 })
 export class ArquivoModule {}

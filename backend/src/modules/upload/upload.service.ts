@@ -5,13 +5,14 @@ import * as path from 'path';
 import { FormularioEntity } from 'src/modules/formulario/entities/formulario.entity';
 import { FindOneOptions, Repository } from 'typeorm';
 import { UploadEntity } from '../upload/entities/upload.entity';
+import { DB_ORACLE_DATABASE } from 'src/shared/database.provider';
 
 @Injectable()
 export class UploadService {
   constructor(
-    @InjectRepository(UploadEntity)
+    @InjectRepository(UploadEntity, DB_ORACLE_DATABASE)
     private imageRepository: Repository<UploadEntity>,
-    @InjectRepository(FormularioEntity)
+    @InjectRepository(FormularioEntity, DB_ORACLE_DATABASE)
     private formularioRepository: Repository<FormularioEntity>,
   ) {}
 
@@ -45,6 +46,8 @@ export class UploadService {
     } catch (error) {
       throw new Error(`Erro ao salvar a imagem: ${error.message}`);
     }
+
+    //Cria a URL dos arquivos para correção do path
 
     // Cria a URL da imagem com base no caminho do servidor
     const imageUrl = `http://DevTask.com/${imagePath}`;

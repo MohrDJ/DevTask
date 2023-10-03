@@ -2,11 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FormularioEntity } from './entities/formulario.entity';
+import { DB_ORACLE_DATABASE } from 'src/shared/database.provider';
 
 @Injectable()
 export class FormularioService {
   constructor(
-    @InjectRepository(FormularioEntity)
+    @InjectRepository(FormularioEntity, DB_ORACLE_DATABASE)
     private readonly formularioRepository: Repository<FormularioEntity>,
   ) {}
 
