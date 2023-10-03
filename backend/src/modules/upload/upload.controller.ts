@@ -2,7 +2,7 @@ import { Controller, Post, UseInterceptors, UploadedFile, BadRequestException, B
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from '../upload/upload.service';
 import { Express } from 'express';
-import { TicketUploadDto } from './TicketDto';
+import { TicketUploadDto } from './ticketDto';
 import { FormularioService } from 'src/modules/formulario/services/formulario.service';
 
 @Controller('image')

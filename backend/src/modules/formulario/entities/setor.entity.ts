@@ -4,10 +4,4 @@ import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 export class SetorEntity {
     @PrimaryGeneratedColumn()
     id: number;
-  
-    @Column()
-    nome: string;
-  
-    @Column({ name: 'INATIVO', type: 'number', default: 0 })
-    inativo: number;
 }

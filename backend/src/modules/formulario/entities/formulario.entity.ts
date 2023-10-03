@@ -8,8 +8,8 @@ export class FormularioEntity {
   id: number;
 
   @ManyToOne(() => TipoTicketEntity) 
-  @JoinColumn({ name: 'ID' })
-  tipoTicket: TipoTicketEntity; 
+  @JoinColumn({ name: 'ID_TIPO_TICKET' })
+  id_tipo_ticket: TipoTicketEntity; 
 
   @Column({ name:'NOMESOLICITANTE', length: 120 })
   nomesolicitante: string;
@@ -21,7 +21,7 @@ export class FormularioEntity {
   telefone: string; 
 
   @ManyToOne(() => SetorEntity)
-  @JoinColumn({ name: 'ID' })
+  @JoinColumn({ name: 'SETOR' })
   setor: SetorEntity;
 
   @Column({ name:'DESCRICAO', length: 1500 })
