@@ -5,7 +5,7 @@ import { UploadService } from './upload.service';
 import { UploadEntity } from './entities/upload.entity';
 import { dataBaseConfigOracle } from 'src/shared/database.provider';
 import { FormularioEntity } from '../formulario/entities/formulario.entity';
-import { FormularioService } from '../formulario/formulario.service';
+import { FormularioService } from '../formulario/services/formulario.service';
 
 @Module({
   imports: [

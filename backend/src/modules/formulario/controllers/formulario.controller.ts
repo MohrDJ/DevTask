@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { FormularioService } from './formulario.service';
-import { FormularioEntity } from './entities/formulario.entity';
+import { FormularioService } from '../services/formulario.service';
+import { FormularioEntity } from '../entities/formulario.entity';
 
 @Controller('formulario')
 export class FormularioController {

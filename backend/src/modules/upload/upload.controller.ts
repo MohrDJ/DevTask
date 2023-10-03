@@ -3,7 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from '../upload/upload.service';
 import { Express } from 'express';
 import { TicketUploadDto } from './TicketDto';
-import { FormularioService } from 'src/modules/formulario/formulario.service';
+import { FormularioService } from 'src/modules/formulario/services/formulario.service';
 
 @Controller('image')
 export class UploadController {
