@@ -358,7 +358,7 @@ const RequestForm: React.FC = () => {
                             <CustomSelect
                                 id="type"
                                 options={typeOptions}
-                                value={typeOptions}
+                                value={typeOptions.find(option => option.value === formData.type) || null}
                                 onChange={handleSelectChange}
                                 isSearchable={false}
                                 styles={customStyles}
