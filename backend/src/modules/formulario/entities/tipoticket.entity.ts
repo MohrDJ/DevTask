@@ -2,12 +2,12 @@ import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity('DTASK_TIPO_TICKET')
 export class TipoTicketEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({name:'ID',type:'int'})
   id: number;
 
-  @Column()
-  tipo: string;
+  @Column({ name: 'NOME' })
+  nome: string;
 
-  @Column()
+  @Column({ name: 'DESCRITIVO' })
   descritivo: string;
 }
