@@ -3,9 +3,11 @@ import lottie, { AnimationItem } from 'lottie-web';
 
 interface LottieAnimationProps {
   animationData: object;
+  width?: string; 
+  height?: string; 
 }
 
-const LottieAnimation: React.FC<LottieAnimationProps> = ({ animationData }) => {
+const LottieAnimation: React.FC<LottieAnimationProps> = ({ animationData, width, height }) => {
   const animationContainer = useRef<HTMLDivElement | null>(null);
   const animRef = useRef<AnimationItem | null>(null);
 
@@ -16,8 +18,13 @@ const LottieAnimation: React.FC<LottieAnimationProps> = ({ animationData }) => {
         renderer: 'svg',
         loop: true,
         autoplay: true,
-        animationData: animationData, 
+        animationData: animationData,
       });
+
+      if (width && height) {
+        animationContainer.current.style.width = width;
+        animationContainer.current.style.height = height;
+      }
 
       return () => {
         if (animRef.current) {
@@ -25,7 +32,7 @@ const LottieAnimation: React.FC<LottieAnimationProps> = ({ animationData }) => {
         }
       };
     }
-  }, [animationData]);
+  }, [animationData, width, height]);
 
   return <div ref={animationContainer} />;
 };

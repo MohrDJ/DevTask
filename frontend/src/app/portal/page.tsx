@@ -12,17 +12,6 @@ import { Option, customStyles, ClearIndicator, CustomSelect, CustomOption } from
 import FloatingLabelInput from '@/components/LabelFloat/float';
 import { validateDescription, validateEmail, validateFile, validateName, validatePhone, validateSector, validateTitle, validateType } from '@/components/validation/formValidation';
 
-const initialFormData = {
-    name: '',
-    email: '',
-    phone: '',
-    description: '',
-    file: null as File | null,
-    sector: 'Selecione um setor',
-    type: 'Selecione um tipo',
-    title: ''
-};
-
 
 const RequestForm: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -47,6 +36,7 @@ const RequestForm: React.FC = () => {
     const [animationShown, setAnimationShown] = useState(false);
     const [typeOptions, setTypeOptions] = useState<CustomOption[]>([]);
     const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
+    const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -57,6 +47,7 @@ const RequestForm: React.FC = () => {
     };
 
     const handleValidation = () => {
+        const errors: string[] = [];
         const nameError = validateName(formData.name);
         const emailError = validateEmail(formData.email);
         const phoneError = validatePhone(formData.phone);
@@ -66,16 +57,17 @@ const RequestForm: React.FC = () => {
         const descriptionError = validateDescription(formData.description);
         const fileError = validateFile(formData.file);
 
-        setErrors({
-            name: nameError,
-            email: emailError,
-            phone: phoneError,
-            sector: sectorError,
-            type: typeError,
-            title: titleError,
-            description: descriptionError,
-            file: fileError,
-        });
+        if (nameError) errors.push(nameError);
+        if (emailError) errors.push(emailError);
+        if (phoneError) errors.push(phoneError);
+        if (sectorError) errors.push(sectorError);
+        if (typeError) errors.push(typeError);
+        if (titleError) errors.push(titleError);
+        if (descriptionError) errors.push(descriptionError);
+        if (fileError) errors.push(fileError);
+
+        setErrorMessages(errors);
+        setAnimationShown(errors.length > 0); 
     };
 
     const [windowWidth, setWindowWidth] = useState<number>(
@@ -137,14 +129,22 @@ const RequestForm: React.FC = () => {
     };
 
     useEffect(() => {
-        axios.get('/sector')
-            .then(response => {
-                setSectorOptions(response.data);
-            })
-            .catch(error => {
+        const fetchSectorOptions = async () => {
+            try {
+                const response = await axios.get('http://localhost:3001/setor');
+                const data = response.data;
+                const formattedOptions = data.map((option: any) => ({
+                    value: option.nome, 
+                    label: option.nome, 
+                }));
+                setSectorOptions(formattedOptions);
+            } catch (error) {
                 console.error('Erro ao buscar opções de setor:', error);
-            });
+            }
+        };
+        fetchSectorOptions();
     }, []);
+
 
     const handleSelectChangeSector = (selectedOption: CustomOption | null, actionMeta: ActionMeta<any>) => {
         if (actionMeta.action === 'select-option') {
@@ -164,12 +164,12 @@ const RequestForm: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        axios.get('/api/type')
+        axios.get('http://localhost:3001/tipoTicket')
             .then(response => {
-                const mappedOptions = response.data.map((option: { nome: any; descricao: any; }) => ({
+                const mappedOptions = response.data.map((option: { nome: any; descritivo: any; }) => ({
                     value: option.nome,
                     label: option.nome,
-                    description: option.descricao,
+                    description: option.descritivo,
                 }));
                 setTypeOptions(mappedOptions);
             })
@@ -233,7 +233,7 @@ const RequestForm: React.FC = () => {
             formDataToSend.append('file', formData.file);
         }
         try {
-            const response = await axios.post('/', formDataToSend, {
+            const response = await axios.post('http://localhost:3001/formulario', formDataToSend, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -289,7 +289,7 @@ const RequestForm: React.FC = () => {
             <main>
                 <form
                     onSubmit={handleSubmit}
-                    className={`max-w-[900px] max-h-[100vh]   mx-auto mt-4 p-4 flex flex-col ${isWideScreen ? 'max-w-[1300px]' : ''
+                    className={`max-w-[900px] max-h-[100vh] mx-auto mt-4 p-4 flex flex-col ${isWideScreen ? 'max-w-[1300px]' : ''
                         }`}
                     autoComplete="off"
                 >
@@ -358,7 +358,7 @@ const RequestForm: React.FC = () => {
                             <CustomSelect
                                 id="type"
                                 options={typeOptions}
-                                value={typeOptions.find(option => option.value === formData.type) || null}
+                                value={typeOptions}
                                 onChange={handleSelectChange}
                                 isSearchable={false}
                                 styles={customStyles}
@@ -423,7 +423,6 @@ const RequestForm: React.FC = () => {
                                     </a>
                                 </div>
                             )}
-
                             {/* {selectedFileName && fileUrl && (
                                 <div className={`mt-2 mb-1 font-serif text-gray-400 ${fileSelected ? '' : 'hidden'}`}>
                                     <a href={fileUrl} target="_blank" rel="noopener noreferrer">
@@ -465,7 +464,7 @@ const RequestForm: React.FC = () => {
                             </div>
                         </label>
                     </div>
-                    <div className="flex flex-row justify-between sm:flex-row sm:self-end gap-1">
+                    <div className="flex flex-row justify-between sm:flex-row sm:self-end gap-1 mb-3">
                         <button
                             type="button"
                             className="bg-white text-black font-bold px-4 py-2 rounded-md hover:bg-gray-400 mt-2"
@@ -483,19 +482,30 @@ const RequestForm: React.FC = () => {
                         </button>
                     </div>
                 </form>
-                <footer className=" h-6rem min-h-[48px] w-full  botton-0 relative mt-10" style={{ backgroundColor: "#000000" }}>
-                    {error && animationShown && (
-                        <div className="fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-60 flex items-center justify-center">
-                            <LottieAnimation animationData={animationData} />
-                        </div>
-                    )}
-                </footer>
+                <ToastContainer></ToastContainer>
+                <footer className="h-6rem w-full fixed bottom-0 mt-10" style={{ backgroundColor: "#000000" }}>
 
+                <footer className="h-6rem w-full fixed bottom-0 mt-10" style={{ backgroundColor: "#000000" }}>
+
+{animationShown && (
+    <div className="flex flex-col fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-60 items-center justify-center">
+        <LottieAnimation animationData={animationData} width="300px" height="300px" />
+        <span className='font-extrabold'></span>
+        {errorMessages.map((errorMsg, index) => (
+            <span key={index} className='text-white font-extrabold' style={{ textShadow: '1px 1px 1px  #ff0000c5', fontSize:'1.3rem' }}>{errorMsg}</span>
+        ))}
+    </div>
+)}
+</footer>
+</footer>
             </main>
         </div>
     );
 };
 export default RequestForm;
+
+
+
 
 
 
