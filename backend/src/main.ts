@@ -7,7 +7,7 @@ dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Configuração do Multer para armazenar os arquivos no diretório "uploads"
   const storage = multer.diskStorage({
     destination: './uploads',
@@ -20,7 +20,7 @@ async function bootstrap() {
 
   app.use(upload);
 
-  await app.listen(process.env.APP_PORT);
+  await app.listen(process.env.APP_PORT || 3001);
 }
 
 bootstrap();
