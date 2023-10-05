@@ -2,7 +2,7 @@ import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FormularioModule } from './modules/formulario/formulario.module';
 import { dataBaseConfigOracle } from './shared/database.provider';
-import { ArquivoModule } from './modules/upload/upload.module';
+import { UploadModule } from './modules/upload/upload.module';
 import { CorsMiddleware } from './middlewares/auth.middleware';
 import * as multer from 'multer';
 
@@ -10,7 +10,7 @@ import * as multer from 'multer';
   imports: [
     TypeOrmModule.forRoot(dataBaseConfigOracle),
     FormularioModule,
-    ArquivoModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [],

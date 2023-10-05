@@ -15,4 +15,4 @@ import { FormularioService } from '../formulario/services/formulario.service';
   providers: [UploadService, FormularioService],
   exports: [UploadService],
 })
-export class ArquivoModule {}
+export class UploadModule {}
