@@ -8,7 +8,7 @@ import { UploadEntity } from '../upload/entities/upload.entity';
 import { DB_ORACLE_DATABASE } from 'src/shared/database.provider';
 import { TicketUploadDto } from './dto/ticketDto';
 import { identity } from 'rxjs';
-import * as crypto from 'crypto'; // Importe o módulo crypto
+import * as crypto from 'crypto';
 
 @Injectable()
 export class UploadService {
@@ -28,7 +28,7 @@ export class UploadService {
       throw new BadRequestException('ID do ticket inválido.');
     }
 
-    const uploadDir = '\\192.131.2.206\\arquivos'; // Diretório de upload
+    const uploadDir = '\\\\192.131.2.206\\arquivos'; // Diretório de upload
     const allowedMimeTypes = [
       'image/jpeg',
       'image/png',
@@ -56,7 +56,7 @@ export class UploadService {
     const uniqueHash = crypto.createHash('md5').update(uniqueString).digest('hex');
 
     // Crie o nome do arquivo combinando os elementos necessários
-    const imageFileName = `DevTask${ticketDTO.ticketId}_${uniqueHash}${fileExtension}`;
+    const imageFileName = `DevTask_${ticketDTO.ticketId}_${uniqueHash}${fileExtension}`;
     const imagePath = path.join(uploadDir, imageFileName);
 
     // Certifique-se de que o diretório de destino existe
