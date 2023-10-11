@@ -6,6 +6,9 @@ import { FormularioEntity } from 'src/modules/formulario/entities/formulario.ent
 import { FindOneOptions, Repository } from 'typeorm';
 import { UploadEntity } from '../upload/entities/upload.entity';
 import { DB_ORACLE_DATABASE } from 'src/shared/database.provider';
+import { TicketUploadDto } from './dto/ticketDto';
+import { identity } from 'rxjs';
+import * as crypto from 'crypto'; // Importe o módulo crypto
 
 @Injectable()
 export class UploadService {
@@ -18,15 +21,14 @@ export class UploadService {
 
   async uploadArquivo(
     file: Express.Multer.File,
-    customFileName: string,
-    ticketId: number
+    ticketDTO: TicketUploadDto
   ): Promise<string> {
     // Verifique se ticketId é um número válido
-    if (isNaN(ticketId)) {
+    if (isNaN(ticketDTO.ticketId)) {
       throw new BadRequestException('ID do ticket inválido.');
     }
 
-    const uploadDir = '\\\\192.131.2.206\\arquivos\\imagens'; // Diretório de upload
+    const uploadDir = '\\192.131.2.206\\arquivos'; // Diretório de upload
     const allowedMimeTypes = [
       'image/jpeg',
       'image/png',
@@ -41,9 +43,27 @@ export class UploadService {
       throw new BadRequestException('Tipo de arquivo não suportado.');
     }
 
-    // Use o nome de arquivo com base no ID do ticket e no customFileName
-    const imageFileName = `DevTask${ticketId}_${Date.now()}_${customFileName}`;
+    // Verifica se o ticketId é válido consultando o banco de dados
+    const formulario = await this.formularioRepository.findOne({ where: { id: ticketDTO.ticketId } });
+
+    if (!formulario) {
+      throw new BadRequestException('ID de ticket inválido.');
+    }
+
+    // Gere uma criptografia única baseada no nome original do arquivo
+    const fileExtension = path.extname(file.originalname);
+    const uniqueString = `${ticketDTO.ticketId}_${Date.now()}_${file.originalname}`;
+    const uniqueHash = crypto.createHash('md5').update(uniqueString).digest('hex');
+
+    // Crie o nome do arquivo combinando os elementos necessários
+    const imageFileName = `DevTask${ticketDTO.ticketId}_${uniqueHash}${fileExtension}`;
     const imagePath = path.join(uploadDir, imageFileName);
+
+    // Certifique-se de que o diretório de destino existe
+    if (!fs.existsSync(uploadDir)) {
+      // Se o diretório não existe, crie-o
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
 
     // Salve a imagem no sistema de arquivos
     try {
@@ -54,13 +74,6 @@ export class UploadService {
 
     // Crie a URL da imagem com base no caminho do servidor
     const imageUrl = `http://DevTask.com/${imagePath}`;
-
-    // Busque a instância de FormularioEntity com base no ID do ticket
-    const formulario = await this.formularioRepository.findOne({ where: { id: ticketId } } as FindOneOptions<FormularioEntity>);
-
-    if (!formulario) {
-      throw new BadRequestException('Formulário não encontrado.');
-    }
 
     // Salve a URL e o relacionamento no banco de dados
     const image = new UploadEntity();

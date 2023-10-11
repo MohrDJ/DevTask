@@ -3,16 +3,16 @@ import { FormularioEntity } from 'src/modules/formulario/entities/formulario.ent
 
 @Entity('DTASK_ARQUIVOS')
 export class UploadEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({name:'ID',type:'int'})
   id: number;
 
   @ManyToOne(() => FormularioEntity) 
   @JoinColumn({ name: 'ID_TICKET' })
   tipoTicket: FormularioEntity; 
 
-  @Column()
+  @Column({name: 'NOME_ARQUIVO'})
   nome_arquivo: string;
 
-  @Column()
+  @Column({name: 'URL'})
   url: string;
 }
