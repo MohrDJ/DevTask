@@ -1,11 +1,11 @@
-import { Controller, Post, UseInterceptors, UploadedFile, BadRequestException, Body } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { UploadService } from '../upload/upload.service';
-import { Express } from 'express';
-import { TicketUploadDto } from './ticketDto';
+import { BadRequestException, Body, Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FormularioService } from 'src/modules/formulario/services/formulario.service';
+import { UploadService } from '../upload/upload.service';
+import { TicketUploadDto } from './ticketDto';
+import multerConfig from './multer.config';
+import { FileInterceptor } from '@nestjs/platform-express';
 
-@Controller('image')
+@Controller('arquivos')
 export class UploadController {
   constructor(
     private readonly imageService: UploadService,
@@ -13,12 +13,13 @@ export class UploadController {
   ) {}
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('image'))
-  async uploadImage(
+ @UseInterceptors(FileInterceptor('file', multerConfig))
+  async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Body() ticketUploadDto: TicketUploadDto,
-  ): Promise<string> {
-    const customFileName = 'jpg';
+  ){
+    console.log(file)
+    const customFileName = file.mimetype;
 
     const { ticketId } = ticketUploadDto;
 

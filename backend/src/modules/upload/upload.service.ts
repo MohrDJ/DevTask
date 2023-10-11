@@ -11,7 +11,7 @@ import { DB_ORACLE_DATABASE } from 'src/shared/database.provider';
 export class UploadService {
   constructor(
     @InjectRepository(UploadEntity, DB_ORACLE_DATABASE)
-    private imageRepository: Repository<UploadEntity>,
+    private uploadRepository: Repository<UploadEntity>,
     @InjectRepository(FormularioEntity, DB_ORACLE_DATABASE)
     private formularioRepository: Repository<FormularioEntity>,
   ) {}
@@ -21,6 +21,11 @@ export class UploadService {
     customFileName: string,
     ticketId: number
   ): Promise<string> {
+    // Verifique se ticketId é um número válido
+    if (isNaN(ticketId)) {
+      throw new BadRequestException('ID do ticket inválido.');
+    }
+
     const uploadDir = '\\\\192.131.2.206\\arquivos\\imagens'; // Diretório de upload
     const allowedMimeTypes = [
       'image/jpeg',
@@ -36,37 +41,35 @@ export class UploadService {
       throw new BadRequestException('Tipo de arquivo não suportado.');
     }
 
-    // Usa o nome de arquivo com base no ID do ticket e no customFileName
+    // Use o nome de arquivo com base no ID do ticket e no customFileName
     const imageFileName = `DevTask${ticketId}_${Date.now()}_${customFileName}`;
     const imagePath = path.join(uploadDir, imageFileName);
 
     // Salve a imagem no sistema de arquivos
     try {
-      fs.writeFileSync(imagePath, file.buffer);
+      fs.writeFileSync(imagePath, fs.readFileSync(file.path));
     } catch (error) {
       throw new Error(`Erro ao salvar a imagem: ${error.message}`);
     }
 
-    //Cria a URL dos arquivos para correção do path
-
-    // Cria a URL da imagem com base no caminho do servidor
+    // Crie a URL da imagem com base no caminho do servidor
     const imageUrl = `http://DevTask.com/${imagePath}`;
 
-    // Busca a instância de FormularioEntity com base no ID do ticket
+    // Busque a instância de FormularioEntity com base no ID do ticket
     const formulario = await this.formularioRepository.findOne({ where: { id: ticketId } } as FindOneOptions<FormularioEntity>);
 
     if (!formulario) {
       throw new BadRequestException('Formulário não encontrado.');
     }
 
-    // Salva a URL e o relacionamento no banco de dados
+    // Salve a URL e o relacionamento no banco de dados
     const image = new UploadEntity();
     image.nome_arquivo = imageFileName;
     image.url = imageUrl;
     image.tipoTicket = formulario;
 
     try {
-      await this.imageRepository.save(image);
+      await this.uploadRepository.save(image);
     } catch (error) {
       // Em caso de erro ao salvar no banco de dados, exclua a imagem salva no sistema de arquivos
       fs.unlinkSync(imagePath);
